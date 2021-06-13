@@ -1,0 +1,99 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+namespace PPP46453r
+{
+
+    public class GalaxyObject<T> where T : GalaxyObject<T>
+    {
+        public string Name { get; set; }
+
+        public GalaxyObject(string name)
+        {
+            this.Name = name;
+        }
+
+        public static T FindGalaxyObject(string name, IEnumerable<T> objects)
+        {
+            foreach (T obj in objects)
+            {
+                if (obj.Name == name)
+                {
+                    return obj;
+                }
+            }
+            return null;
+        }
+
+        public static void ListObjects(string objectType, IEnumerable<T> objects)
+        {
+            Console.WriteLine("--- List of all researched " + objectType + " ---");
+            foreach (T obj in objects)
+            {
+                Console.WriteLine(obj.Name);
+            }
+            Console.WriteLine("--- End of " + objectType + " list ---");
+        }
+    }
+
+    public struct GalaxyAge
+    {
+        public double Year { get; set; }
+        public char Unit { get; set; }
+
+        public GalaxyAge(double year, char unit)
+        {
+            Year = year;
+            Unit = unit;
+        }
+
+        public override string ToString() => $"{Year}{Unit}";
+
+        public static GalaxyAge ParseAge(string input)
+        {
+            string yearPart = "";
+            char unit;
+            double year;
+
+            yearPart = input.Substring(0, input.Length - 1);
+            unit = input[input.Length - 1];
+
+            if (!Double.TryParse(yearPart, out year) || (unit != 'M' && unit != 'B'))
+            {
+                throw new FormatException("Wrong format of input!");
+            }
+            return new GalaxyAge(year, unit);
+        }
+    }
+
+    class Galaxy : GalaxyObject<Galaxy>
+    {
+        private string type;
+        private GalaxyAge age;
+        public List<Star> Stars { get; } = new List<Star>();
+
+        public Galaxy(string name, string type, GalaxyAge age) : base(name)
+        {
+            this.type = type;
+            this.age = age;
+            this.Stars = new List<Star>();
+        }
+
+        public void AddStar(Star star)
+        {
+            this.Stars.Add(star);
+        }
+
+        public static List<Star> GetStars(List<Galaxy> galaxies)
+        {
+            List<Star> result = new List<Star>();
+            foreach (Galaxy galaxy in galaxies)
+            {
+                foreach (Star star in galaxy.Stars)
+                {
+                    result.Add(star);
+                }
+            }
+            return result;
+        }
